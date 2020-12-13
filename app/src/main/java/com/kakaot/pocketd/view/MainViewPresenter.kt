@@ -30,11 +30,11 @@ class MainViewPresenter(
     val mIOnItemClick: IOnItemClick = object : IOnItemClick {
         override fun onClick(data: PkName) {
             val param: Map<String, Int> = mapOf("id" to data.pkNameId)
-            //NetworkManager.requestData(NetworkManager.REQUEST_DATA_TYPE_DETAIL, mPkViewModel,param)
-            NetworkManager.requestData(NetworkManager.REQUEST_DATA_TYPE_LOCATION, mPkViewModel,param)
-            val mDialog: PkDetailDialog = PkDetailDialog(activityContext)
-            mDialog.update(data)
-            mDialog.show()
+//            NetworkManager.requestData(NetworkManager.REQUEST_DATA_TYPE_DETAIL, mPkViewModel,param)
+            NetworkManager._requestData(NetworkManager.REQUEST_DATA_TYPE_LOCATION, mPkViewModel,param)
+//            val mDialog: PkDetailDialog = PkDetailDialog(activityContext)
+//            mDialog.update(data)
+//            mDialog.show()
         }
     }
 
