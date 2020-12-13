@@ -26,5 +26,15 @@
         app:layout_constraintTop_toBottomOf="@id/title"
         app:queryHint="@string/queryHint" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchView" />
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
