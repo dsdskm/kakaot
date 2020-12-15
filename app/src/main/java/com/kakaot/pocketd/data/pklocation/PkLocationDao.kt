@@ -7,8 +7,12 @@ import androidx.room.Query
 
 @Dao
 interface PkLocationDao {
-    @Query("SELECT * FROM pklocation")
-    fun getAll(): List<PkLocation>
+
+    @Query("SELECT * FROM pklocation WHERE id = :id ")
+    fun getListById(id:Int): List<PkLocation>
+
+    @Query("DELETE FROM pklocation")
+    fun deleteAll()
 
     @Insert
     fun insertAll(list:ArrayList<PkLocation>)

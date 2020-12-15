@@ -10,7 +10,7 @@ interface PkNameDao {
     @Query("SELECT * FROM pkname")
     fun getAll(): List<PkName>
 
-    @Query("SELECT * FROM pkname WHERE pkNameId = :id ")
+    @Query("SELECT * FROM pkname WHERE id = :id ")
     fun getDataById(id: Int): PkName
 
     @Query("DELETE FROM pkname")

@@ -3,6 +3,7 @@ package com.kakaot.pocketd.data
 import androidx.room.Room.databaseBuilder
 import com.kakaot.pocketd.PkAppClass
 import com.kakaot.pocketd.data.pkdetail.PkDetail
+import com.kakaot.pocketd.data.pklocation.PkLocation
 import com.kakaot.pocketd.data.pkname.PkName
 
 object PkDatabaseManager {
@@ -26,10 +27,14 @@ object PkDatabaseManager {
         }).start()
     }
 
-    fun insertPkDetail(data: PkDetail) {
+    fun getPkLocations(id:Int):ArrayList<PkLocation>{
+        return db.pkLocationDao().getListById(id) as ArrayList<PkLocation>
+    }
+
+    fun insertPkLocationAll(list: ArrayList<PkLocation>) {
         Thread(Runnable {
-            db.pkDetailDao().deleteAll()
-            db.pkDetailDao().insert(data)
+            db.pkLocationDao().deleteAll()
+            db.pkLocationDao().insertAll(list)
         }).start()
     }
 

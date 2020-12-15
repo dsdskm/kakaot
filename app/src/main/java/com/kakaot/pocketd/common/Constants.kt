@@ -11,5 +11,8 @@ class Constants {
         const val JSON_FIELD_WEIGHT = "weight"
         const val JSON_FIELD_SPRITES = "sprites"
         const val JSON_FIELD_FRONT_DEFAULT = "front_default"
+        const val KEY_PK_ID = "key_pk_id"
+        const val KEY_PK_NAME = "key_pk_name"
+
     }
 }

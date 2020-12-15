@@ -7,13 +7,11 @@ import androidx.room.PrimaryKey
 import com.kakaot.pocketd.data.pklocation.PkLocation
 import com.kakaot.pocketd.data.pkname.PkName
 
-@Entity(tableName = "pkdetail")
 data class PkDetail(
-    @PrimaryKey val pkDetailId: Int,
-    @ColumnInfo(name = "image") val image: String?,
-    @ColumnInfo(name = "height") val height: Int?,
-    @ColumnInfo(name = "weight") val weight: Int?,
-    @Embedded val pkName: PkName?,
-    @Embedded val pkLocation: PkLocation?
-
+    val id: Int,
+    val image: String?,
+    val height: Int?,
+    val weight: Int?,
+    val pkName: PkName?,
+    val pkLocations: ArrayList<PkLocation>?
 )

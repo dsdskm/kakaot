@@ -38,12 +38,18 @@ class MainActivity : AppCompatActivity(), MainPresenter.IView {
                 mMainViewPresenter!!.updateSearchResult(it)
             }
         )
+        mPkViewModel.mPkDetail.observe(
+            this, { it ->
+                mMainViewPresenter!!.showDetail(it)
+            }
+        )
     }
 
     override fun onDestroy() {
         super.onDestroy()
         Logger.d(TAG, "onDestroy")
         mPkViewModel.mPkNameList.removeObservers(this)
+        mPkViewModel.mPkDetail.removeObservers(this)
     }
 
     private fun initView() {

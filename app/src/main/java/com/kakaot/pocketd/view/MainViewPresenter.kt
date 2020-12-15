@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.kakaot.pocketd.MainActivity
 import com.kakaot.pocketd.common.Logger
+import com.kakaot.pocketd.data.pkdetail.PkDetail
 import com.kakaot.pocketd.data.pkname.PkName
 import com.kakaot.pocketd.data.pkname.PkViewModel
 import com.kakaot.pocketd.network.NetworkManager
@@ -17,8 +18,10 @@ class MainViewPresenter(
     pkViewModel: PkViewModel
 ) : MainPresenter.IContents {
 
+    val TAG = "MainViewPresenter"
     var mMainView: MainPresenter.IView = view           // to send event to MainActivity
     var mPkViewModel: PkViewModel = pkViewModel
+    var mActivityContext = activityContext
     private val mAdapter: RViewAdapter by lazy {
         RViewAdapter(activityContext, mIOnItemClick)
     }
@@ -29,12 +32,8 @@ class MainViewPresenter(
 
     val mIOnItemClick: IOnItemClick = object : IOnItemClick {
         override fun onClick(data: PkName) {
-            val param: Map<String, Int> = mapOf("id" to data.pkNameId)
-//            NetworkManager.requestData(NetworkManager.REQUEST_DATA_TYPE_DETAIL, mPkViewModel,param)
-            NetworkManager._requestData(NetworkManager.REQUEST_DATA_TYPE_LOCATION, mPkViewModel,param)
-//            val mDialog: PkDetailDialog = PkDetailDialog(activityContext)
-//            mDialog.update(data)
-//            mDialog.show()
+            val param: Map<String, Int> = mapOf("id" to data.id)
+            NetworkManager.requestDetail(mPkViewModel, param)
         }
     }
 
@@ -64,6 +63,13 @@ class MainViewPresenter(
 
     override fun updateSearchResult(list: ArrayList<PkName>) {
         mAdapter.setList(list)
+    }
+
+    override fun showDetail(data: PkDetail) {
+        Logger.d(TAG,"showDetail $data")
+        val mDialog = PkDetailDialog(mActivityContext)
+        mDialog.update(data)
+        mDialog.show()
     }
 
 }

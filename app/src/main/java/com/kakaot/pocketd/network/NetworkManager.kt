@@ -1,6 +1,8 @@
 package com.kakaot.pocketd.network
 
+import com.google.gson.JsonArray
 import com.google.gson.JsonObject
+import com.google.gson.JsonPrimitive
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.kakaot.pocketd.common.Constants.Companion.JSON_FIELD_FRONT_DEFAULT
 import com.kakaot.pocketd.common.Constants.Companion.JSON_FIELD_HEIGHT
@@ -18,7 +20,6 @@ import com.kakaot.pocketd.data.pklocation.PkLocation
 import com.kakaot.pocketd.data.pkname.PkName
 import com.kakaot.pocketd.data.pkname.PkViewModel
 import io.reactivex.Observable
-import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -45,7 +46,7 @@ object NetworkManager {
         requestData(req_type, viewmodel, null)
     }
 
-    fun _requestData(req_type: Int, viewmodel: PkViewModel, paramMap: Map<String, Any>?) {
+    fun requestDetail(viewmodel: PkViewModel, paramMap: Map<String, Any>?) {
         Logger.d(TAG, "_requestData")
         if (paramMap != null) {
             val id = paramMap["id"] as Int
@@ -66,6 +67,7 @@ object NetworkManager {
                 BiFunction { r1, r2 ->
                     Logger.d(TAG, "res1 $r1")
                     Logger.d(TAG, "res2 $r2")
+                    viewmodel.mPkDetail.postValue(parsePkDetail(r2, parsePkLocation(r1, id)))
                 }
             ).subscribeOn(Schedulers.newThread())
                 .subscribeOn(AndroidSchedulers.mainThread())
@@ -133,40 +135,49 @@ object NetworkManager {
     private fun parseData(body: String, req_type: Int, viewmodel: PkViewModel) {
         when (req_type) {
             REQUEST_DATA_TYPE_NAME -> viewmodel.mPkNameList.value = parsePkName(body)
-            REQUEST_DATA_TYPE_LOCATION -> parsePkLocation(body)
-            REQUEST_DATA_TYPE_DETAIL -> parsePkDetail(body)
         }
 
     }
 
-    private fun parsePkDetail(body: String) {
+    private fun parsePkDetail(body: JsonObject, locations: ArrayList<PkLocation>?): PkDetail {
         //https://pokeapi.co/api/v2/pokemon/{id }
-        val id = JSONObject(body)[JSON_FIELD_ID] as Int
-        val height = JSONObject(body)[JSON_FIELD_HEIGHT] as Int
-        val weight = JSONObject(body)[JSON_FIELD_WEIGHT] as Int
-        val sprites = JSONObject(body)[JSON_FIELD_SPRITES] as JSONObject
-        val image = sprites[JSON_FIELD_FRONT_DEFAULT] as String
+        val id = body[JSON_FIELD_ID].asInt
+        val height = body[JSON_FIELD_HEIGHT].asInt
+        val weight = body[JSON_FIELD_WEIGHT].asInt
+        val sprites = body[JSON_FIELD_SPRITES] as JsonObject
+        val image = sprites[JSON_FIELD_FRONT_DEFAULT].asString
         Logger.d(
             TAG,
             "parsePkDetail id : $id , height : $height , weight : $weight , sprites : $sprites , image : $image"
         )
-
         val pkName: PkName = PkDatabaseManager.getPkName(id)
+        return PkDetail(id, image, height, weight, pkName, locations)
     }
 
-    private fun parsePkLocation(body: String) {
+    private fun parsePkLocation(body: JsonObject, id: Int): ArrayList<PkLocation>? {
         //https://demo0928971.mockable.io/pokemon_locations
-        val pokemons: JSONArray = JSONObject(body)[JSON_FIELD_POKEMONS] as JSONArray
-        Logger.d(TAG, "parsePkLocation poke len ${pokemons.length()}")
+        val pokemons: JsonArray = body[JSON_FIELD_POKEMONS] as JsonArray
+        Logger.d(TAG, "parsePkLocation poke len ${pokemons.size()}")
         val list: ArrayList<PkLocation> = ArrayList()
-        for (i in 0..pokemons.length()) {
-            val jobject: JSONObject = pokemons[i] as JSONObject;
-            val id = jobject.get(JSON_FIELD_ID) as Int
-            val lat = jobject.get(JSON_FIELD_LAT) as Double
-            val lng = jobject.get(JSON_FIELD_LNG) as Double
-            val data = PkLocation(id, lat, lng)
-            list.add(data)
+        for (i in 0 until pokemons.size()) {
+            val jobject: JsonObject = pokemons[i] as JsonObject;
+            Logger.d(TAG, "jobject $jobject")
+            val _prid = jobject.get(JSON_FIELD_ID) as JsonPrimitive
+            val prlat = jobject.get(JSON_FIELD_LAT) as JsonPrimitive
+            val prlng = jobject.get(JSON_FIELD_LNG) as JsonPrimitive
+
+            val _id = _prid.asInt
+            val lat = prlat.asDouble
+            val lng = prlng.asDouble
+
+
+            if (id == _id) {
+                list.add(PkLocation(i,_id, lat, lng))
+            }
         }
+        PkDatabaseManager.insertPkLocationAll(list)
+
+        return list
 
     }
 
